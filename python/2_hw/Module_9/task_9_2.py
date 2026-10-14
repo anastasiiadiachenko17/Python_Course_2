@@ -8,14 +8,12 @@ def add_all_nums(*args):
         *args: Values to add up. Every value must be an int or a float.
 
     Returns:
-        The sum of all the given values, or 0 when called without any.
-
-    Raises:
-        TypeError: If any of the values is not an int or a float.
+        The sum of the values, or None if any value is not a number.
     """
     for value in args:
         if not isinstance(value, (int, float)):
-            raise TypeError(f"{value!r} is not a number")
+            print(f"{value!r} is not a number")
+            return None
 
     return sum(args)
 
@@ -25,7 +23,5 @@ print(add_all_nums(2.5, 2.5))
 print(add_all_nums(-5, 10))
 print(add_all_nums())
 
-try:
-    add_all_nums(1, "two", 3)
-except TypeError as error:
-    print(f"Error: {error}")
+# Prints its own message, so there is nothing to print here.
+add_all_nums(1, "two", 3)
