@@ -6,3 +6,6 @@ __pycache__/
 
 # Files created by the Module 10 file-operations task
 python/3_hw/Module_10/notes.txt
+
+# Log file created by the Module 17 sensor task
+python/3_hw/Module_17/sensor.log
