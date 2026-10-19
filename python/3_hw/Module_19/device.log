@@ -1,0 +1,8 @@
+2026-05-02 10:15:01.234 INFO  [net] wifi connected ssid="Lab Guest 5G" rssi=-67dBm ch=36 ip=10.20.30.41/24
+2026-05-02 10:15:01.240 DEBUG [net] dns servers: 8.8.8.8, 1.1.1.1
+2026-05-02 10:15:02.010 INFO  [video] start stream id=7f3a9c res=1280x720 fps=29.97 br=2500kbps
+2026-05-02 10:15:02.011 DEBUG [video] target br=3000kbps (max)
+2026-05-02 10:15:05.500 WARN  [video] frame drop: 12 of 300 (4.0%)
+2026-05-02 10:15:07.800 ERROR [cloud] upload failed: code=503, retry_in=5s, url=https://api.example.com/v1/clips?id=7f3a9c
+2026-05-02 10:15:09.001 INFO  [sys] temp=48.5C mem_free=12345KB uptime=3d04h12m fw=v2.14.0-rc3
+2026-05-02 10:15:09.002 INFO  [sys] mac=A4:5E:60:1B:2C:3D reboot_reason="WATCHDOG"
