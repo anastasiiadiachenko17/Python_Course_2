@@ -11,7 +11,7 @@ def work_with_file(operation, file_path, content=None):
 
     Args:
         operation: One of "read", "write" or "append".
-        file_path: Path to the file to work with.
+        file_path: Path to the file to work with, as a string.
         content: Text to write, required for "write" and "append".
     """
     mode = FILE_MODES.get(operation)
@@ -21,8 +21,13 @@ def work_with_file(operation, file_path, content=None):
               f" {', '.join(FILE_MODES)}.")
         return
 
-    if operation != READ and content is None:
-        print(f"The {operation!r} operation needs some content.")
+    if not isinstance(file_path, str):
+        print(f"The file path must be text, not"
+              f" {type(file_path).__name__}.")
+        return
+
+    if operation != READ and not isinstance(content, str):
+        print(f"The {operation!r} operation needs text content.")
         return
 
     try:
