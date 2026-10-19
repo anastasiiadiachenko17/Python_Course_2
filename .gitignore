@@ -3,3 +3,6 @@ venv/
 __pycache__/
 *.pyc
 .DS_Store
+
+# Files created by the Module 10 file-operations task
+python/2_hw/Module_10/notes.txt
