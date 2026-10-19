@@ -49,11 +49,12 @@ def work_with_file(operation, file_path, content=None):
         print(f"Could not {operation} {file_path!r}: {error}")
 
 
-work_with_file("write", "notes.txt", "First line.\n")
-work_with_file("append", "notes.txt", "Second line.\n")
-work_with_file("read", "notes.txt")
+if __name__ == "__main__":
+    work_with_file("write", "notes.txt", "First line.\n")
+    work_with_file("append", "notes.txt", "Second line.\n")
+    work_with_file("read", "notes.txt")
 
-work_with_file("read", "missing.txt")
-work_with_file("read", ".")
-work_with_file("write", "notes.txt")
-work_with_file("delete", "notes.txt")
+    work_with_file("read", "missing.txt")
+    work_with_file("read", ".")
+    work_with_file("write", "notes.txt")
+    work_with_file("delete", "notes.txt")
