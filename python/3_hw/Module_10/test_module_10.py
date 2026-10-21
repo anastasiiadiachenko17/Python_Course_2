@@ -37,7 +37,7 @@ def test_text_without_words_still_has_a_line():
 
 def test_count_rejects_text_that_is_not_a_string():
     """A value that is not a string raises TypeError."""
-    with pytest.raises(TypeError):
+    with pytest.raises(TypeError, match="Expected a string"):
         count_lines_and_words(None)
 
 
@@ -56,6 +56,38 @@ def test_written_content_can_be_read_back(tmp_path, capsys):
     work_with_file("read", file_path)
 
     assert "hello" in capsys.readouterr().out
+
+
+def test_appended_content_keeps_the_previous_one(tmp_path, capsys):
+    """Appending adds to the file instead of replacing it."""
+    file_path = str(tmp_path / "notes.txt")
+    work_with_file("write", file_path, "first\n")
+    work_with_file("append", file_path, "second\n")
+    capsys.readouterr()
+
+    with open(file_path, encoding="utf-8") as written_file:
+        assert written_file.read() == "first\nsecond\n"
+
+
+def test_writing_replaces_the_previous_content(tmp_path, capsys):
+    """Writing twice leaves only the content of the second call."""
+    file_path = str(tmp_path / "notes.txt")
+    work_with_file("write", file_path, "first\n")
+    work_with_file("write", file_path, "second\n")
+    capsys.readouterr()
+
+    with open(file_path, encoding="utf-8") as written_file:
+        assert written_file.read() == "second\n"
+
+
+def test_appending_creates_a_missing_file(tmp_path, capsys):
+    """Appending to a file that does not exist creates it."""
+    file_path = str(tmp_path / "new.txt")
+    work_with_file("append", file_path, "only\n")
+    capsys.readouterr()
+
+    with open(file_path, encoding="utf-8") as written_file:
+        assert written_file.read() == "only\n"
 
 
 def test_missing_file_is_reported(tmp_path, capsys):
