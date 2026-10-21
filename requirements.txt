@@ -1,0 +1,8 @@
+# Run the homework and its tests.
+PyYAML>=6.0.3
+pytest>=9.1.1
+
+# Check style. The ruff version matches the rev pinned in
+# .pre-commit-config.yaml so the hook and the local run agree.
+ruff==0.17.0
+pre-commit>=4.7.0
