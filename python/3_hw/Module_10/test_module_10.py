@@ -1,4 +1,4 @@
-"""Tests for the Module 10 file, text counting and language tasks."""
+"""Tests for the Module 10 file, text, language and country tasks."""
 
 import json
 import os
@@ -8,6 +8,7 @@ import pytest
 from task_10_1 import work_with_file
 from task_10_2 import count_lines_and_words
 from task_10_3 import DEFAULT_COUNT, count_languages, most_spoken_languages
+from task_10_4 import most_populated_countries, rank_by_population
 
 SPEECH_PATH = os.path.join(os.path.dirname(__file__), "steve_job_speech.txt")
 COUNTRIES_PATH = os.path.join(
@@ -19,6 +20,14 @@ COUNTRIES = [
     {"name": "Canada", "languages": ["English", "French"]},
     {"name": "Nigeria", "languages": ["English"]},
     {"name": "Belgium", "languages": ["Dutch", "French", "German"]},
+]
+
+POPULATED = [
+    {"name": "Brazil", "population": 206135893},
+    {"name": "China", "population": 1377422166},
+    {"name": "Bouvet Island", "population": 0},
+    {"name": "India", "population": 1295210000},
+    {"name": "Heard Island", "population": 0},
 ]
 
 
@@ -226,7 +235,7 @@ def test_broken_countries_file_is_reported(tmp_path, capsys):
     assert "not valid JSON" in capsys.readouterr().out
 
 
-def test_the_real_data_file_gives_the_expected_top_three():
+def test_the_real_data_file_gives_the_expected_top_languages():
     """The countries file ranks English, French and Arabic first."""
     assert most_spoken_languages(COUNTRIES_PATH, 3) == [
         (90, "English"),
@@ -241,3 +250,100 @@ def test_the_real_data_file_gives_ten_languages():
 
     assert len(most_spoken_languages(COUNTRIES_PATH)) == ten_languages
     assert ten_languages == DEFAULT_COUNT
+
+
+def test_countries_are_ranked_by_population(tmp_path):
+    """The most populated country comes first with its population."""
+    path = write_countries(tmp_path, POPULATED)
+
+    assert most_populated_countries(path, 1) == [
+        {"country": "China", "population": 1377422166},
+    ]
+
+
+def test_equal_populations_are_ordered_alphabetically():
+    """Countries with the same population keep an alphabetical order."""
+    ranked = rank_by_population(POPULATED)
+
+    assert [entry["country"] for entry in ranked[-2:]] == [
+        "Bouvet Island",
+        "Heard Island",
+    ]
+
+
+def test_every_country_is_ranked():
+    """Ranking keeps all the countries it is given."""
+    assert len(rank_by_population(POPULATED)) == len(POPULATED)
+
+
+def test_asking_for_more_countries_than_there_are(tmp_path):
+    """A count above the number of countries returns them all."""
+    path = write_countries(tmp_path, POPULATED)
+
+    assert len(most_populated_countries(path, 100)) == len(POPULATED)
+
+
+def test_no_countries_gives_no_ranking():
+    """An empty list of countries produces an empty ranking."""
+    assert rank_by_population([]) == []
+
+
+@pytest.mark.parametrize("count", [0, -1, 1.5, "ten", None, True])
+def test_country_count_must_be_a_positive_whole_number(count):
+    """A count that is not a positive whole number is rejected."""
+    with pytest.raises(ValueError, match="positive whole number"):
+        most_populated_countries(COUNTRIES_PATH, count)
+
+
+@pytest.mark.parametrize("key", ["name", "population"])
+def test_country_without_a_required_key_is_rejected(key):
+    """A country missing a needed key raises KeyError."""
+    country = {"name": "Nowhere", "population": 1}
+    del country[key]
+
+    with pytest.raises(KeyError, match=f"no {key!r} key"):
+        rank_by_population([country])
+
+
+@pytest.mark.parametrize("population", ["5", 5.5, True, None])
+def test_population_that_is_not_whole_is_rejected(population):
+    """A population that is not a whole number raises TypeError."""
+    with pytest.raises(TypeError, match="Population must be whole"):
+        rank_by_population([{"name": "Nowhere", "population": population}])
+
+
+def test_country_that_is_not_a_mapping_is_rejected_when_ranking():
+    """A country that is not a mapping raises TypeError."""
+    with pytest.raises(TypeError, match="Expected a country mapping"):
+        rank_by_population(["Nowhere"])
+
+
+def test_missing_countries_file_is_reported_when_ranking(tmp_path, capsys):
+    """A countries file that does not exist is reported, not raised."""
+    assert most_populated_countries(str(tmp_path / "nope.json"), 3) == []
+    assert "no file" in capsys.readouterr().out
+
+
+def test_broken_countries_file_is_reported_when_ranking(tmp_path, capsys):
+    """A countries file that is not valid JSON is reported."""
+    broken_path = tmp_path / "countries_data.json"
+    broken_path.write_text("{ broken", encoding="utf-8")
+
+    assert most_populated_countries(str(broken_path), 3) == []
+    assert "not valid JSON" in capsys.readouterr().out
+
+
+def test_the_real_data_file_gives_the_expected_top_countries():
+    """The countries file ranks China, India and the USA first."""
+    assert most_populated_countries(COUNTRIES_PATH, 3) == [
+        {"country": "China", "population": 1377422166},
+        {"country": "India", "population": 1295210000},
+        {"country": "United States of America", "population": 323947000},
+    ]
+
+
+def test_the_real_data_file_gives_ten_countries():
+    """The task asks for ten countries and the file has enough."""
+    ten_countries = 10
+
+    assert len(most_populated_countries(COUNTRIES_PATH)) == ten_countries
