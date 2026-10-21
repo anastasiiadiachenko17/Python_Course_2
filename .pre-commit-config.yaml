@@ -1,0 +1,12 @@
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.17.0
+    hooks:
+      - id: ruff
+        name: ruff (17_ruff)
+        args: [--config, python/3_hw/Module_17/17_ruff/pyproject.toml]
+        files: ^python/3_hw/Module_17/17_ruff/
+      - id: ruff-format
+        name: ruff-format (17_ruff)
+        args: [--config, python/3_hw/Module_17/17_ruff/pyproject.toml]
+        files: ^python/3_hw/Module_17/17_ruff/
