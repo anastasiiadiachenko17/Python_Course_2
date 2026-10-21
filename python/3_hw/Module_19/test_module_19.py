@@ -56,6 +56,30 @@ def test_pattern_finds_the_expected_value(title):
     assert find(title, read_log()) == EXPECTED[title]
 
 
+def test_ssid_stops_at_its_closing_quote():
+    """Another quoted value on the line is not swallowed by the ssid."""
+    log = 'wifi ssid="Lab Guest 5G" band="5GHz"\n'
+
+    assert find("SSID", log) == "Lab Guest 5G"
+
+
+def test_reboot_reason_stops_at_its_closing_quote():
+    """Another quoted value does not extend the reboot reason."""
+    log = 'boot reboot_reason="WATCHDOG" stage="init"\n'
+
+    assert find("Reboot reason", log) == "WATCHDOG"
+
+
+def test_the_report_finds_every_value_of_the_task(capsys):
+    """The printed report carries the value the task asks for."""
+    report_log_values(LOG_PATH)
+
+    printed = capsys.readouterr().out
+
+    for title, expected in EXPECTED.items():
+        assert f"{title}: {expected}" in printed
+
+
 def test_every_item_of_the_task_is_covered():
     """There is a pattern and an expectation for every log item."""
     assert sorted(PATTERNS) == sorted(EXPECTED)
