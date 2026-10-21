@@ -31,10 +31,22 @@ EXPECTED = {
 }
 
 
+def read_file(path):
+    """Return the text of the file at the given path.
+
+    Args:
+        path: Path of the file to read.
+
+    Returns:
+        The contents of the file as a string.
+    """
+    with open(path, encoding="utf-8") as opened_file:
+        return opened_file.read()
+
+
 def read_log():
     """Return the text of the device log that ships with the task."""
-    with open(LOG_PATH, encoding="utf-8") as log_file:
-        return log_file.read()
+    return read_file(LOG_PATH)
 
 
 def find(title, log):
@@ -149,6 +161,9 @@ def test_several_groups_are_joined_by_commas():
     """A pattern with several groups is shown as comma separated."""
     assert format_values([("1280", "720")]) == "1280, 720"
 
+
+DEVICES_PATH = os.path.join(os.path.dirname(__file__), "devices.yaml")
+LAB_ENVS_PATH = os.path.join(os.path.dirname(__file__), "lab_envs.json")
 
 DEVICES = {
     "knight-lamar": {"device_type": "cocoa", "lab_env": "lab11-env-1"},
@@ -272,3 +287,53 @@ def test_empty_devices_file_gives_empty_result(tmp_path, capsys):
     capsys.readouterr()
 
     assert yaml.safe_load(combined_path.read_text(encoding="utf-8")) == {}
+
+
+def test_the_files_of_the_task_are_combined(tmp_path, capsys):
+    """The files that ship with the task give the expected YAML."""
+    combined_path = tmp_path / "combined.yaml"
+
+    combine_files(DEVICES_PATH, LAB_ENVS_PATH, str(combined_path))
+    capsys.readouterr()
+
+    written = yaml.safe_load(combined_path.read_text(encoding="utf-8"))
+    envs = json.loads(read_file(LAB_ENVS_PATH))
+
+    assert written["knight-lamar"]["lab_env"] == envs["lab11-env-1"]
+    assert written["goldfish-neutron"]["lab_env"] == envs["lab11-env-2"]
+    assert written["hero-calcium"]["lab_env"] == envs["lab11-env-3"]
+    assert written["jaws-sand"]["lab_env"] is None
+
+
+def test_the_written_file_keeps_the_order_of_the_devices(tmp_path, capsys):
+    """Devices are written in the order the input file lists them."""
+    combined_path = tmp_path / "combined.yaml"
+
+    combine_files(DEVICES_PATH, LAB_ENVS_PATH, str(combined_path))
+    capsys.readouterr()
+
+    devices = yaml.safe_load(read_file(DEVICES_PATH))
+    written = yaml.safe_load(combined_path.read_text(encoding="utf-8"))
+
+    assert list(written) == list(devices)
+
+
+def test_the_inputs_are_found_from_another_folder(
+    tmp_path, monkeypatch, capsys
+):
+    """The default input files do not depend on the current folder."""
+    monkeypatch.chdir(tmp_path)
+    combined_path = tmp_path / "combined.yaml"
+
+    combine_files(combined_path=str(combined_path))
+
+    assert "Wrote 4 devices" in capsys.readouterr().out
+
+
+def test_the_log_is_found_from_another_folder(tmp_path, monkeypatch, capsys):
+    """The default log file does not depend on the current folder."""
+    monkeypatch.chdir(tmp_path)
+
+    report_log_values()
+
+    assert "Reboot reason: WATCHDOG" in capsys.readouterr().out

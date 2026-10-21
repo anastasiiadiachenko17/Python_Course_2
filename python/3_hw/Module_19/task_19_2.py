@@ -1,12 +1,14 @@
 """Combine the device list with the lab environment descriptions."""
 
 import json
+import os
 
 import yaml
 
-DEVICES_FILE = "devices.yaml"
-LAB_ENVS_FILE = "lab_envs.json"
-COMBINED_FILE = "combined_devices.yaml"
+HERE = os.path.dirname(__file__)
+DEVICES_FILE = os.path.join(HERE, "devices.yaml")
+LAB_ENVS_FILE = os.path.join(HERE, "lab_envs.json")
+COMBINED_FILE = os.path.join(HERE, "combined_devices.yaml")
 
 
 def combine_devices(devices, lab_envs):

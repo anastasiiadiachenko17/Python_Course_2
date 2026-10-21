@@ -1,8 +1,9 @@
 """Extract device values from the log file with regular expressions."""
 
+import os
 import re
 
-LOG_FILE = "device.log"
+LOG_FILE = os.path.join(os.path.dirname(__file__), "device.log")
 
 PATTERNS = {
     "Timestamp of the ERROR line": r"^(\S+ \S+) ERROR",
