@@ -1,13 +1,25 @@
-"""Tests for the Module 10 file and text counting tasks."""
+"""Tests for the Module 10 file, text counting and language tasks."""
 
+import json
 import os
 
 import pytest
 
 from task_10_1 import work_with_file
 from task_10_2 import count_lines_and_words
+from task_10_3 import DEFAULT_COUNT, count_languages, most_spoken_languages
 
 SPEECH_PATH = os.path.join(os.path.dirname(__file__), "steve_job_speech.txt")
+COUNTRIES_PATH = os.path.join(
+    os.path.dirname(__file__), "data", "countries_data.json"
+)
+
+COUNTRIES = [
+    {"name": "Afghanistan", "languages": ["Pashto", "Uzbek"]},
+    {"name": "Canada", "languages": ["English", "French"]},
+    {"name": "Nigeria", "languages": ["English"]},
+    {"name": "Belgium", "languages": ["Dutch", "French", "German"]},
+]
 
 
 def test_empty_text_has_nothing_to_count():
@@ -116,3 +128,116 @@ def test_file_path_must_be_text(capsys):
     work_with_file("read", None)
 
     assert "must be text" in capsys.readouterr().out
+
+
+def write_countries(tmp_path, countries):
+    """Write the countries as a JSON file and return its path.
+
+    Args:
+        tmp_path: Directory to write the file into.
+        countries: Value to store as the JSON content.
+
+    Returns:
+        The path of the written file as a string.
+    """
+    countries_path = tmp_path / "countries_data.json"
+    countries_path.write_text(json.dumps(countries), encoding="utf-8")
+
+    return str(countries_path)
+
+
+def test_a_country_counts_once_for_each_language():
+    """Every language of a country adds one to its count."""
+    french_countries = [c for c in COUNTRIES if "French" in c["languages"]]
+
+    assert count_languages(COUNTRIES)["French"] == len(french_countries)
+
+
+def test_languages_are_ranked_by_the_number_of_countries(tmp_path):
+    """The most spoken language comes first, with its count."""
+    path = write_countries(tmp_path, COUNTRIES)
+
+    assert most_spoken_languages(path, 1) == [(2, "English")]
+
+
+def test_equal_counts_are_ordered_alphabetically(tmp_path):
+    """Languages with the same count keep an alphabetical order."""
+    path = write_countries(tmp_path, COUNTRIES)
+
+    assert most_spoken_languages(path, 3) == [
+        (2, "English"),
+        (2, "French"),
+        (1, "Dutch"),
+    ]
+
+
+def test_asking_for_more_languages_than_there_are(tmp_path):
+    """A count above the number of languages returns them all."""
+    path = write_countries(tmp_path, COUNTRIES)
+    spoken = {lang for c in COUNTRIES for lang in c["languages"]}
+
+    assert len(most_spoken_languages(path, 100)) == len(spoken)
+
+
+def test_countries_without_languages_are_counted_as_none(tmp_path):
+    """A country with an empty language list adds no language."""
+    path = write_countries(tmp_path, [{"name": "Nowhere", "languages": []}])
+
+    assert most_spoken_languages(path, 3) == []
+
+
+@pytest.mark.parametrize("count", [0, -1, 2.5, "three", None, True])
+def test_count_must_be_a_positive_whole_number(count):
+    """A count that is not a positive whole number is rejected."""
+    with pytest.raises(ValueError, match="positive whole number"):
+        most_spoken_languages(COUNTRIES_PATH, count)
+
+
+def test_country_without_languages_key_is_rejected():
+    """A country that has no languages key raises KeyError."""
+    with pytest.raises(KeyError, match="has no languages"):
+        count_languages([{"name": "Nowhere"}])
+
+
+def test_country_that_is_not_a_mapping_is_rejected():
+    """A country that is not a mapping raises TypeError."""
+    with pytest.raises(TypeError, match="Expected a country mapping"):
+        count_languages(["Nowhere"])
+
+
+def test_languages_that_are_not_a_list_are_rejected():
+    """Languages given as a plain string raise TypeError."""
+    with pytest.raises(TypeError, match="must be a list"):
+        count_languages([{"name": "Nowhere", "languages": "English"}])
+
+
+def test_missing_countries_file_is_reported(tmp_path, capsys):
+    """A countries file that does not exist is reported, not raised."""
+    assert most_spoken_languages(str(tmp_path / "nope.json"), 3) == []
+    assert "no file" in capsys.readouterr().out
+
+
+def test_broken_countries_file_is_reported(tmp_path, capsys):
+    """A countries file that is not valid JSON is reported."""
+    broken_path = tmp_path / "countries_data.json"
+    broken_path.write_text("{ broken", encoding="utf-8")
+
+    assert most_spoken_languages(str(broken_path), 3) == []
+    assert "not valid JSON" in capsys.readouterr().out
+
+
+def test_the_real_data_file_gives_the_expected_top_three():
+    """The countries file ranks English, French and Arabic first."""
+    assert most_spoken_languages(COUNTRIES_PATH, 3) == [
+        (90, "English"),
+        (45, "French"),
+        (25, "Arabic"),
+    ]
+
+
+def test_the_real_data_file_gives_ten_languages():
+    """The task asks for ten languages and the file has enough."""
+    ten_languages = 10
+
+    assert len(most_spoken_languages(COUNTRIES_PATH)) == ten_languages
+    assert ten_languages == DEFAULT_COUNT
