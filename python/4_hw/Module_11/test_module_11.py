@@ -6,6 +6,25 @@ import inspect
 import pytest
 
 from task_11_1 import copy_list
+from task_11_2 import even_numbers
+
+
+def returns_list_comprehension(function):
+    """Tell whether a function returns a list comprehension.
+
+    Args:
+        function: Function whose source code is checked.
+
+    Returns:
+        True if the first return statement returns a list
+        comprehension.
+    """
+    tree = ast.parse(inspect.getsource(function))
+    returned = next(
+        node.value for node in ast.walk(tree) if isinstance(node, ast.Return)
+    )
+
+    return isinstance(returned, ast.ListComp)
 
 
 def test_the_copy_has_the_same_numbers_in_the_same_order():
@@ -59,9 +78,43 @@ def test_something_that_is_not_a_list_is_rejected(not_a_list):
 
 def test_the_copy_is_made_with_a_list_comprehension():
     """The task asks for a list comprehension, not list() or slicing."""
-    tree = ast.parse(inspect.getsource(copy_list))
-    returned = next(
-        node.value for node in ast.walk(tree) if isinstance(node, ast.Return)
-    )
+    assert returns_list_comprehension(copy_list)
 
-    assert isinstance(returned, ast.ListComp)
+
+def test_only_the_even_numbers_of_one_to_ten_are_kept():
+    """The example from the task gives the five even numbers."""
+    assert even_numbers(range(1, 11)) == [2, 4, 6, 8, 10]
+
+
+def test_the_even_numbers_keep_their_order():
+    """The even numbers come back in the order of the input."""
+    assert even_numbers([48, 15, 22, 37, 6]) == [48, 22, 6]
+
+
+def test_zero_and_negative_even_numbers_are_kept():
+    """Zero and negative numbers divisible by two are even too."""
+    assert even_numbers([-7, -6, 0, 3]) == [-6, 0]
+
+
+def test_no_even_numbers_give_an_empty_list():
+    """Only odd numbers, or no numbers at all, give an empty list."""
+    assert even_numbers([11, 33, 55]) == []
+    assert even_numbers([]) == []
+    assert even_numbers(range(0)) == []
+
+
+def test_duplicates_are_kept():
+    """A repeated even number is kept every time it appears."""
+    assert even_numbers([14, 14, 9, 14]) == [14, 14, 14]
+
+
+@pytest.mark.parametrize("not_a_list", [None, (12, 45), "17", 42])
+def test_something_that_is_not_a_list_or_range_is_rejected(not_a_list):
+    """Only a list or a range can be filtered."""
+    with pytest.raises(TypeError, match="Expected a list or range"):
+        even_numbers(not_a_list)
+
+
+def test_the_even_numbers_are_kept_with_a_list_comprehension():
+    """The task asks for a list comprehension, not filter() or a loop."""
+    assert returns_list_comprehension(even_numbers)
