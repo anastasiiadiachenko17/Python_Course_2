@@ -1,0 +1,26 @@
+2026-11-03 10:15:00 INFO Device booted
+2026-11-03 10:15:01 DEBUG Loading config from /etc/device/config.json
+2026-11-03 10:15:02 ERROR Camera offline
+2026-11-03 10:15:03 DEBUG Retrying camera init (attempt 1 of 3)
+2026-11-03 10:15:05 WARNING Battery low: 15%
+2026-11-03 10:15:06 INFO Motion detection enabled
+
+2026-11-03 10:15:09 ERROR Wi-Fi connection lost
+2026-11-03 10:15:10 WARNING Signal strength -82 dBm
+corrupted line
+2026-11-03 10:15:12 INFO Firmware 1.2.3 installed
+2026-11-03 10:15:14 DEBUG Heartbeat sent to cloud
+2026-11-03 10:15:15 INFO Wi-Fi reconnected to SSID HomeNet
+2026-11-03 10:15:18 ERROR Upload failed: HTTP 503 Service Unavailable
+2026-11-03 10:15:20 WARNING CPU temperature 78C
+2026-11-03 10:15:21 ERROR
+2026-11-03 10:15:23 INFO Live view started by user 42
+2026-11-03 10:15:25 DEBUG Frame rate 30 fps, bitrate 2048 kbps
+2026-11-03 10:15:27 WARNING Storage 90% full
+###
+
+2026-11-03 10:15:30 ERROR Motion sensor not responding
+2026-11-03 10:15:32 INFO Live view stopped
+2026-11-03 10:15:35 DEBUG Battery voltage 3.61 V
+2026-11-03 10:15:38 ERROR SD card write error at sector 2048
+2026-11-03 10:15:40 INFO Device going to sleep

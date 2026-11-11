@@ -1,0 +1,30 @@
+--- Task 1: Batches(range(1, 8), 3) ---
+[1, 2, 3]
+[4, 5, 6]
+[7]
+Invalid size: size must be at least 1, got 0
+
+--- Task 2: ERROR records of device_module15.log ---
+2026-11-03 10:15:02 Camera offline
+2026-11-03 10:15:09 Wi-Fi connection lost
+2026-11-03 10:15:18 Upload failed: HTTP 503 Service Unavailable
+2026-11-03 10:15:30 Motion sensor not responding
+2026-11-03 10:15:38 SD card write error at sector 2048
+Cannot read the log: [Errno 2] No such file or directory: 'missing.log'
+
+--- Task 3: count_calls ---
+ping.calls before: 0
+pong from cam-01
+pong from cam-02
+ping.calls after: 2
+name and docstring: 'ping', 'Ping a host.'
+
+--- Task 4: repeat(times=3) ---
+['Hello, Ann!', 'Hello, Ann!', 'Hello, Ann!']
+name: 'greet_three_times'
+
+--- Task 5: bold and italic ---
+@bold @italic: <b><i>Hello, Ann!</i></b>
+@italic @bold: <i><b>Hello, Ann!</b></i>
+without @:     <b><i>Hello, Ann!</i></b>
+name without wraps: 'wrapper'
